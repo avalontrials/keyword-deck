@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f6f7f9" />
+    <meta name="signal-token" content="__SIGNAL_TOKEN__" />
+    <title>Keyword Deck</title>
+    <link rel="icon" href="/brand.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/atkinson-hyperlegible-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/atkinson-hyperlegible-bold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="app-shell">
+      <aside class="rail">
+        <div class="rail-top">
+          <a class="brand" href="/" aria-label="Keyword Deck home">
+            <span class="brand-mark">K</span>
+            <span class="brand-word">Keyword<em>Deck · social search</em></span>
+          </a>
+          <button class="new-search" id="newSearchButton" type="button">
+            <span>New search</span>
+            <kbd>N</kbd>
+          </button>
+        </div>
+
+        <div class="rail-scroll">
+          <section class="rail-block">
+            <div class="rail-label"><span>Recent searches</span><span class="rail-count" id="historyCount">00</span></div>
+            <div class="history-list" id="historyList">
+              <p class="rail-empty">Your keyword searches will collect here.</p>
+            </div>
+          </section>
+
+          <section class="rail-block source-block">
+            <div class="rail-label"><span>Sources</span><span class="rail-live">Local</span></div>
+            <div class="source-list" id="sourceList">
+              <div class="source-row" data-source="google">
+                <span class="source-dot"></span>
+                <div><strong>Google index</strong><small>Free · no key</small></div>
+                <span class="source-state">Ready</span>
+              </div>
+              <div class="source-row" data-source="instagram">
+                <span class="source-dot"></span>
+                <div><strong>Instagram previews</strong><small>Public oEmbed</small></div>
+                <span class="source-state">Ready</span>
+              </div>
+              <div class="source-row" data-source="apify">
+                <span class="source-dot"></span>
+                <div><strong>Apify deep read</strong><small>Optional · capped</small></div>
+                <span class="source-state">Off</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="rail-block">
+            <div class="rail-label"><span>Desk notes</span><span class="rail-count">01</span></div>
+            <p class="rail-empty">The trace shows every query. Nothing is posted or messaged for you.</p>
+          </section>
+        </div>
+
+        <div class="rail-foot">
+          <button type="button" class="rail-button" id="settingsButton"><span class="rail-icon">⚙</span> Settings</button>
+          <button type="button" class="rail-button" id="aboutButton"><span class="rail-icon">§</span> Method</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-meta">
+            <span class="status-pulse" id="statusPulse"></span>
+            <span id="statusText">Local desk ready</span>
+            <span class="topbar-rule"></span>
+            <span id="todayLabel"></span>
+            <span class="topbar-rule"></span>
+            <span id="regionLabel">United States</span>
+          </div>
+          <div class="topbar-actions">
+            <div class="text-size-control" role="group" aria-label="Text size">
+              <button type="button" id="textSmaller" title="Smaller text" aria-label="Smaller text">A−</button>
+              <span id="textSizeLabel">110%</span>
+              <button type="button" id="textLarger" title="Larger text" aria-label="Larger text">A+</button>
+            </div>
+            <button type="button" class="quiet-button" id="focusButton" title="Hide the sidebar and hero">Focus</button>
+            <button type="button" class="quiet-button" id="exportButton" hidden>Export .csv</button>
+            <button type="button" class="quiet-button" id="refreshButton" hidden>Refresh</button>
+            <span class="clock" id="clock">--:--</span>
+          </div>
+        </header>
+
+        <div class="main-scroll" id="mainScroll">
+          <section class="hero" id="hero">
+            <div class="hero-copy">
+              <p class="kicker">Keyword-first social search <span class="kicker-dot">·</span> public conversations only</p>
+              <h1>Find the conversations<br />worth joining.</h1>
+              <p class="lede">
+                Turn your keywords into a ranked feed of fresh public posts. The desk reads public search results and
+                opens each post preview, so you can decide what deserves a reply.
+              </p>
+            </div>
+          </section>
+
+          <section class="search-console" aria-label="Search public social posts">
+            <form id="searchForm" autocomplete="off">
+              <div class="search-shell">
+                <span class="search-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.4"></circle><path d="m16 16 4.2 4.2"></path></svg>
+                </span>
+                <label class="sr-only" for="searchInput">Enter keywords</label>
+                <input
+                  id="searchInput"
+                  name="keywords"
+                  type="search"
+                  spellcheck="false"
+                  maxlength="400"
+                  placeholder="Enter keywords, separated by commas…"
+                  value=""
+                />
+                <button type="submit" class="search-button" id="searchButton" disabled>
+                  <span class="search-button-label">Search</span>
+                  <span class="search-button-arrow" aria-hidden="true">↗</span>
+                </button>
+              </div>
+              <p class="search-hint">Up to six phrases. Each keyword is searched, then everything is ranked together.</p>
+            </form>
+
+            <div class="search-options">
+              <div class="option-group" role="group" aria-label="Time window">
+                <span class="option-label">Window</span>
+                <div class="segmented small" id="windowControl">
+                  <button type="button" data-window="24">24h</button>
+                  <button type="button" data-window="48">48h</button>
+                  <button type="button" data-window="72">3d</button>
+                  <button type="button" data-window="168" class="active">7d</button>
+                </div>
+              </div>
+              <div class="option-group">
+                <label class="option-label" for="regionSelect">Region</label>
+                <select id="regionSelect" class="minimal-select">
+                  <option value="US">United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="GB">United Kingdom</option>
+                </select>
+              </div>
+              <label class="switch" for="apifyToggle">
+                <input type="checkbox" id="apifyToggle" />
+                <span class="switch-track"><span></span></span>
+                <span class="switch-copy">Apify deep read <em id="apifyState">not connected</em></span>
+              </label>
+            </div>
+
+            <div class="manual-lanes">
+              <span class="option-label">Manual lanes</span>
+              <button type="button" data-manual="reddit">Reddit</button>
+              <button type="button" data-manual="facebook">Facebook</button>
+              <button type="button" data-manual="threads">Threads</button>
+              <button type="button" data-manual="linkedin">LinkedIn</button>
+              <span class="manual-note">opens in your logged-in browser</span>
+            </div>
+          </section>
+
+          <section class="progress-panel" id="progressPanel" hidden aria-live="polite">
+            <div class="progress-orbit"><span></span></div>
+            <div class="progress-copy">
+              <p class="progress-title" id="progressTitle">Reading the public index</p>
+              <p class="progress-detail" id="progressDetail">Keywords → Instagram links → relevance</p>
+            </div>
+            <div class="progress-steps" id="progressSteps">
+              <span class="active">Index</span><span>Resolve</span><span>Preview</span><span>Rank</span>
+            </div>
+          </section>
+
+          <section class="results" id="resultsSection" hidden>
+            <div class="result-head">
+              <div class="result-heading">
+                <p class="kicker" id="resultKicker">Your desk</p>
+                <h2 id="resultTitle">Keyword results</h2>
+                <p class="result-meta" id="resultMeta"></p>
+              </div>
+              <div class="result-controls">
+                <div class="segmented" id="viewControl" role="group" aria-label="Filter posts">
+                  <button type="button" data-view="high" class="active">High relevance</button>
+                  <button type="button" data-view="all">All posts</button>
+                </div>
+                <div class="segmented" id="sortControl" role="group" aria-label="Sort posts">
+                  <button type="button" data-sort="priority" class="active">Priority</button>
+                  <button type="button" data-sort="newest">Newest</button>
+                </div>
+                <button type="button" class="quiet-button" id="traceButton">Trace</button>
+                <button type="button" class="shuffle-button" id="shuffleButton"><span aria-hidden="true">⤨</span> Shuffle <kbd>Space</kbd></button>
+              </div>
+            </div>
+
+            <div class="stats-row" id="statsRow"></div>
+
+            <div class="deck-layout">
+              <article class="featured-card" id="featuredCard" aria-live="polite"></article>
+              <aside class="queue-panel">
+                <div class="queue-head">
+                  <div>
+                    <p class="kicker">Up next</p>
+                    <h3>The reading queue</h3>
+                  </div>
+                  <span class="queue-counter" id="queueCounter">00 / 00</span>
+                </div>
+                <div class="queue-list" id="queueList"></div>
+                <div class="queue-foot">
+                  <span><kbd>Space</kbd> next</span>
+                  <span><kbd>S</kbd> save</span>
+                  <span><kbd>O</kbd> open</span>
+                  <span><kbd>X</kbd> hide</span>
+                </div>
+              </aside>
+            </div>
+
+            <div class="trace-panel" id="tracePanel" hidden>
+              <div class="trace-head">
+                <div>
+                  <p class="kicker">Search trace</p>
+                  <h3>Where this desk came from</h3>
+                </div>
+                <span class="trace-time" id="traceTime"></span>
+              </div>
+              <div class="trace-grid" id="queryTrace"></div>
+              <div class="trace-warnings" id="traceWarnings"></div>
+            </div>
+          </section>
+
+          <section class="empty-state" id="emptyState">
+            <div class="empty-rule"><span></span></div>
+            <p class="kicker">The desk is clear</p>
+            <h2>Start with a few keywords.</h2>
+            <p>Enter phrases separated by commas. The desk finds public posts, ranks the relevant ones, and gives you a clean place to decide what to open.</p>
+            <div class="empty-actions">
+              <button type="button" class="text-button" data-example="cold brew coffee, coffee subscription">Use example keywords</button>
+            </div>
+          </section>
+
+          <footer class="desk-footer">
+            <div><span class="footer-mark">K</span><span>Keyword Deck · a local keyword search desk</span></div>
+            <div class="footer-links">
+              <button type="button" class="footer-link" id="footerMethod">Method &amp; limits</button>
+              <button type="button" class="footer-link" id="footerSettings">Settings</button>
+            </div>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="settingsModal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-head">
+          <div><p class="kicker">Local configuration</p><h2 id="settingsTitle">Settings</h2></div>
+          <button type="button" class="close-button" data-close="settingsModal" aria-label="Close settings">×</button>
+        </div>
+        <div class="modal-body">
+          <section class="settings-section">
+            <h3>Search defaults</h3>
+            <div class="form-grid">
+              <label><span>Region</span><select id="settingRegion"><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option></select></label>
+              <label><span>Default window</span><select id="settingWindow"><option value="24">Past 24 hours</option><option value="48">Past 48 hours</option><option value="72">Past 3 days</option><option value="168">Past 7 days</option></select></label>
+              <label class="wide"><span>Default keywords (optional)</span><input id="settingKeywords" type="text" maxlength="400" placeholder="Leave blank to start fresh each time" /><small>Separate phrases with commas. You can always override this in the search bar.</small></label>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title-row">
+              <div><h3>Apify deep read</h3><p>Optional. Pulls public post details such as likes, comments, views and exact timestamps. The selected actor advertises 5,000 free posts per month; charges can apply after that allowance.</p></div>
+              <label class="switch compact" for="settingApifyEnabled"><input type="checkbox" id="settingApifyEnabled" /><span class="switch-track"><span></span></span></label>
+            </div>
+            <div class="form-grid">
+              <label class="wide"><span>Apify API token</span><div class="token-row"><input id="settingApifyToken" type="password" autocomplete="off" placeholder="apify_api_…" /><button type="button" class="quiet-button" id="testApifyButton">Test</button></div><small id="apifyTestResult">Stored only in this app's local data folder.</small></label>
+              <label><span>Actor</span><select id="settingApifyActor"><option value="omkar-cloud~instagram-scraper">Instagram Scraper · 5k free claim</option><option value="datamagnet~instagram-search-posts-reels">Search Posts &amp; Reels</option></select></label>
+              <label><span>Posts per source</span><input id="settingApifyMaxPosts" type="number" min="3" max="50" step="1" /></label>
+              <label><span>Hard cap per run (USD)</span><input id="settingApifyCap" type="number" min="0.01" max="1" step="0.01" /></label>
+              <label><span>Cooldown (seconds)</span><input id="settingApifyCooldown" type="number" min="30" max="3600" step="10" /></label>
+            </div>
+            <div class="notice-strip"><strong>Cost guard.</strong> Keyword Deck sends Apify's <code>maxTotalChargeUsd</code> on every run and never retries a failed paid run automatically. Review current actor pricing before enabling.</div>
+          </section>
+
+          <section class="settings-section">
+            <h3>Local data</h3>
+            <p class="settings-copy">Searches, saved posts, thumbnails and your Apify token stay in this app's local <code>data</code> folder. Clearing local history keeps your settings and token.</p>
+            <button type="button" class="danger-button" id="clearDataButton">Clear local history</button>
+          </section>
+        </div>
+        <div class="modal-foot">
+          <span id="settingsStatus">Changes apply to the next search.</span>
+          <div><button type="button" class="quiet-button" data-close="settingsModal">Cancel</button><button type="button" class="primary-button" id="saveSettingsButton">Save settings</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="aboutModal" hidden>
+      <div class="modal method-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+        <div class="modal-head">
+          <div><p class="kicker">Method &amp; limits</p><h2 id="aboutTitle">How this desk works</h2></div>
+          <button type="button" class="close-button" data-close="aboutModal" aria-label="Close method">×</button>
+        </div>
+        <div class="modal-body method-body">
+          <div class="method-grid">
+            <article><span class="method-num">01</span><h3>Google's public index</h3><p>Each keyword is sent to Google News as a <code>site:instagram.com</code> query inside your time window. Google's signed article links are resolved to the original public Instagram URL.</p></article>
+            <article><span class="method-num">02</span><h3>Public post previews</h3><p>Resolved posts are queried through Instagram's public oEmbed endpoint for author, caption and preview image. Private or deleted posts drop out. No login or cookie is used.</p></article>
+            <article><span class="method-num">03</span><h3>Optional Apify read</h3><p>If connected, an Apify actor adds public metrics and exact timestamps. The run has a hard per-run cost cap and a cooldown. Google remains the default free source.</p></article>
+            <article><span class="method-num">04</span><h3>Relevance, not hype</h3><p>Posts are scored on freshness, exact keywords, keyword overlap, question/advice language, public engagement and promo penalties. High/Low relevance is Keyword Deck's editorial heuristic, not an Instagram ranking.</p></article>
+          </div>
+          <div class="method-bottom">
+            <p><strong>Freshness is an index timestamp.</strong> Google News usually reports when it found the post. Without Apify, the exact Instagram publish time may be earlier. The UI says “indexed” for that reason.</p>
+            <p><strong>No automated engagement.</strong> Keyword Deck never likes, follows, comments, messages or scrapes private data. You open the post and decide. Respect each platform's terms and each community's rules.</p>
+            <p><strong>Manual lanes.</strong> Reddit, Facebook, Threads and LinkedIn open a keyword search in your default browser. Keyword Deck does not read those pages or use your accounts.</p>
+            <p><strong>Local by design.</strong> The app listens only on <code>127.0.0.1</code>. Searches, tokens and history stay in the local data folder.</p>
+          </div>
+        </div>
+        <div class="modal-foot"><span>Version <span id="aboutVersion">1.0.0</span></span><button type="button" class="primary-button" data-close="aboutModal">Close</button></div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+    <noscript><p class="noscript">Keyword Deck needs JavaScript enabled.</p></noscript>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

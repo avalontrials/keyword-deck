@@ -1,0 +1,7 @@
+Keyword Deck
+
+1. Double-click "Keyword Deck.vbs" or the desktop shortcut.
+2. If the shortcut is missing, run:
+   powershell -ExecutionPolicy Bypass -File ".\scripts\install-shortcut.ps1"
+3. The app opens at http://127.0.0.1:4318
+4. Enter keywords separated by commas.
