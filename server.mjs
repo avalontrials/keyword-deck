@@ -382,6 +382,8 @@ async function main() {
           "windowHours",
           "maxResults",
           "sourceGoogle",
+          "chromeProfile",
+          "chromePath",
           "enrichInstagram",
           "apifyEnabled",
           "apifyActor",

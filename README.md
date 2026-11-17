@@ -29,6 +29,29 @@ Instagram posts are found through Google's public index. The Google row in the S
 
 The Google index leans toward news publishers, so some results read like headlines rather than creator posts. Apify returns a different set.
 
+## You need Chrome
+
+The desk searches Google for Instagram posts, the same way you would in a browser. Google blocks scripted requests, so the desk does not fetch results itself. It opens **Google Chrome** with your own profile, loads the exact search URL, reads the result links, and closes the window.
+
+That means Chrome is a hard requirement, and it comes with constraints:
+
+- **Chrome must be installed.** The desk looks in the usual Windows, macOS and Linux locations. If yours is somewhere else, set `chromePath` in `data/store.json`.
+- **Chrome must be closed before you search.** Chrome locks its profile. If Chrome is already open, the desk cannot use it and will tell you to close it.
+- **You should be signed into Google in that Chrome profile.** Signed out, Google often shows a consent page or an "unusual traffic" check, and the results are thin or empty.
+- **The first run may ask for a human check.** If Google shows a consent or "unusual traffic" page, solve it once in the window that opens. The desk keeps the cookies and the next search usually goes through.
+- **A search opens a Chrome window.** Expect about 5 to 10 seconds per phrase while the page loads.
+- **Google can rate-limit you.** Several searches in a row may trigger a check. Wait a minute and retry.
+- **Your password never touches the desk.** It uses your existing Chrome profile and only reads public result links. It never signs in, posts, comments or messages.
+- **A non-default Chrome profile** can be set with `chromeProfile` in `data/store.json` (the folder, not the profile name).
+
+The query the desk runs is exactly:
+
+```
+site:instagram.com "your phrase"
+```
+
+with Google's tools filter set to **Past 24 hours** or **Past 7 days**, sorted by date (`tbs=qdr:d,sbd:1`). Only `/p/`, `/reel/` and `/tv/` links are kept.
+
 ## Run it
 
 Requires Node.js 22 or newer.
