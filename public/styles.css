@@ -406,6 +406,29 @@ kbd {
   padding: 7px 4px;
 }
 
+.source-row.source-toggle {
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.source-row.source-toggle:hover {
+  background: rgba(24, 32, 46, 0.05);
+}
+
+.source-row.source-toggle:focus-visible {
+  outline: 1px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.source-row[data-enabled="false"] .source-dot {
+  background: var(--faint);
+  box-shadow: none;
+}
+
+.source-row[data-enabled="false"] strong {
+  color: var(--faint);
+}
+
 .source-dot {
   width: 6px;
   height: 6px;

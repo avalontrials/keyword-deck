@@ -14,6 +14,7 @@ const dom = {
   historyList: $("#historyList"),
   historyCount: $("#historyCount"),
   sourceList: $("#sourceList"),
+  googleRow: $('.source-row[data-source="google"]'),
   statusPulse: $("#statusPulse"),
   statusText: $("#statusText"),
   todayLabel: $("#todayLabel"),
@@ -279,6 +280,32 @@ function setRegion(region) {
   dom.regionLabel.textContent = state.bootstrap?.markets?.[state.region] ?? "United States";
 }
 
+function setGoogleSource(enabled, { persist = true } = {}) {
+  const row = dom.googleRow;
+  if (!row) return;
+  row.dataset.enabled = String(enabled);
+  row.setAttribute("aria-checked", String(enabled));
+  $(".source-state", row).textContent = enabled ? "On" : "Off";
+  if (state.settings) state.settings.sourceGoogle = enabled;
+  if (!persist) return;
+  api("/api/settings", { method: "POST", body: JSON.stringify({ sourceGoogle: enabled }) })
+    .then((response) => {
+      if (response.settings && state.settings) {
+        state.settings.sourceGoogle = response.settings.sourceGoogle !== false;
+      }
+      toast(
+        enabled
+          ? "Google index on. Instagram posts will be found again."
+          : "Google index off. Only Apify can search now.",
+        "info",
+      );
+    })
+    .catch((error) => {
+      toast(error.message, "error");
+      setGoogleSource(!enabled, { persist: false });
+    });
+}
+
 function applySettings(settings, { updateInput = true } = {}) {
   state.settings = settings;
   state.window = Number(settings.windowHours) || 168;
@@ -290,6 +317,7 @@ function applySettings(settings, { updateInput = true } = {}) {
     button.classList.toggle("active", Number(button.dataset.window) === state.window);
   });
   dom.apifyToggle.checked = Boolean(settings.apifyEnabled && settings.apifyTokenSet);
+  setGoogleSource(settings.sourceGoogle !== false, { persist: false });
   updateSearchButton();
   renderSources(state.bootstrap?.sourceStatus ?? {});
 }
@@ -333,6 +361,11 @@ function renderSources(sourceStatus = {}) {
   const rows = $$(".source-row", dom.sourceList);
   for (const row of rows) {
     const name = row.dataset.source;
+    if (name === "google" && state.settings?.sourceGoogle === false) {
+      row.dataset.state = "idle";
+      $(".source-state", row).textContent = "Off";
+      continue;
+    }
     const label = sourceStatusLabel(name, sourceStatus);
     const status = sourceStatus?.[name]?.status ?? "idle";
     row.dataset.state =
@@ -597,8 +630,13 @@ async function doSearch(rawKeywords) {
     openSettings();
     return;
   }
-  setBusy(true);
+  const useGoogle = state.settings?.sourceGoogle !== false;
   const useApify = dom.apifyToggle.checked;
+  if (!useGoogle && !useApify) {
+    toast("Turn the Google index back on, or arm Apify. A search needs one source.", "error");
+    return;
+  }
+  setBusy(true);
   try {
     const response = await api("/api/search", {
       method: "POST",
@@ -606,7 +644,7 @@ async function doSearch(rawKeywords) {
         keywords,
         windowHours: state.window,
         market: state.region,
-        useGoogle: true,
+        useGoogle,
         useApify,
         limit: state.settings?.maxResults ?? 30,
       }),
@@ -957,6 +995,19 @@ function bindEvents() {
     const button = event.target.closest("[data-manual]");
     if (button) openManualLane(button.dataset.manual);
   });
+  if (dom.googleRow) {
+    const toggleGoogle = () => {
+      const enabled = dom.googleRow.dataset.enabled !== "false";
+      setGoogleSource(!enabled);
+    };
+    dom.googleRow.addEventListener("click", toggleGoogle);
+    dom.googleRow.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+        event.preventDefault();
+        toggleGoogle();
+      }
+    });
+  }
   dom.textSmaller.addEventListener("click", () => changeTextScale(-1));
   dom.textLarger.addEventListener("click", () => changeTextScale(1));
   dom.focusButton.addEventListener("click", toggleFocus);

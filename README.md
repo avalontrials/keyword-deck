@@ -23,6 +23,12 @@ After a keyword search:
 - Saves, hides and marks posts contacted locally.
 - Exports the current desk to CSV.
 
+## Sources
+
+Instagram posts are found through Google's public index. The Google row in the Sources panel is the search itself, so clicking it turns the search off; that leaves Apify as the only source. With both off, Search stops and tells you why.
+
+The Google index leans toward news publishers, so some results read like headlines rather than creator posts. Apify returns a different set.
+
 ## Run it
 
 Requires Node.js 22 or newer.
